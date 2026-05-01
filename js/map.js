@@ -1,34 +1,168 @@
-// Initialize map centered on Netherlands
+// Initialize map centered on Netherlands with RD (Rijksdriehoeks) coordinate system
 const map = L.map('map').setView([52.1326, 5.2913], 7);
 
-// Base layers
+// Base layers using PDOK (Publieke Diensten Op de Kaart) - Dutch national map services
 const baseLayers = {
-    'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+    'BRT Water': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/water/EPSG:28992/{z}/{x}/{y}.png', {
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
         maxZoom: 19
     }),
-    'Satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles © Esri',
-        maxZoom: 18
+    'BRT Grijs': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:28992/{z}/{x}/{y}.png', {
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
+        maxZoom: 19
     }),
-    'Topographic': L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenTopoMap',
-        maxZoom: 17
+    'Luchtfoto': L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:28992/{z}/{x}/{y}.jpeg', {
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
+        maxZoom: 19
     })
 };
 
-// Overlay layers (OGC WMS services and other layers)
+// Overlay layers - Water Management Maps
 const overlayLayers = {
-    // Example WMS layer - uncomment and modify with actual WMS services
-    // 'Water Management': L.tileLayer.wms('https://example.com/wms', {
-    //     layers: 'water_layer',
-    //     transparent: true,
-    //     attribution: 'Water Authority'
-    // })
+    // Administrative boundaries
+    'Provincies': L.tileLayer.wms('https://service.pdok.nl/cbs/gebiedsindelingen/2023/wms/v1_0', {
+        layers: 'provincie_gegeneraliseerd',
+        transparent: true,
+        opacity: 0.5,
+        format: 'image/png',
+        tileSize: 2048,
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
+    }),
+    
+    'Waterschappen': L.tileLayer.wms('https://service.pdok.nl/hwh/waterschappen-waterschapsgrenzen-imso/wms/v2_0', {
+        layers: 'waterschap',
+        transparent: true,
+        opacity: 0.65,
+        format: 'image/png'
+    }),
+    
+    // Water-related layers
+    'Natura2000': L.tileLayer.wms('https://service.pdok.nl/rvo/natura2000/wms/v1_0', {
+        layers: 'natura2000',
+        transparent: true,
+        opacity: 0.7,
+        format: 'image/png',
+        attribution: 'RVO'
+    }),
+    
+    'Natuurnetwerk Nederland': L.tileLayer.wms('https://service.pdok.nl/provincies/natuurnetwerk-nederland/wms/v1_0', {
+        layers: 'PS.ProtectedSite',
+        transparent: true,
+        opacity: 0.5,
+        format: 'image/png'
+    }),
+    
+    'Wetlands': L.tileLayer.wms('https://service.pdok.nl/rvo/wetlands/wms/v1_0', {
+        layers: 'wetlands',
+        transparent: true,
+        opacity: 0.6,
+        format: 'image/png',
+        attribution: 'RVO'
+    }),
+    
+    // Land use and soil
+    'LGN (Landgebruik)': L.tileLayer.wms('https://service.pdok.nl/wur/landelijk-grondgebruik-nederland/wms/v1_0', {
+        layers: 'lgn-actueel',
+        transparent: true,
+        opacity: 0.5,
+        format: 'image/png'
+    }),
+    
+    'Bodemkaart': L.tileLayer.wms('https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0', {
+        layers: 'soilarea',
+        transparent: true,
+        opacity: 0.5,
+        format: 'image/png'
+    }),
+    
+    'Geomorfologie': L.tileLayer.wms('https://service.pdok.nl/bzk/bro-geomorfologischekaart/wms/v2_0', {
+        layers: 'geomorphological_area',
+        transparent: true,
+        opacity: 0.6,
+        format: 'image/png'
+    }),
+    
+    // Elevation
+    'Hoogte (AHN)': L.tileLayer.wms('https://service.pdok.nl/rws/ahn/wms/v1_0', {
+        layers: 'dtm_05m',
+        transparent: true,
+        opacity: 0.6,
+        format: 'image/png',
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
+    }),
+    
+    // Water infrastructure
+    'Keringen primair': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/wvp/ows/wms', {
+        layers: 'nbpw:dijktrajecten',
+        transparent: true,
+        opacity: 0.7,
+        format: 'image/png',
+        version: '1.3.0'
+    }),
+    
+    'Keringen regionaal': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/regionale_keringen/ows', {
+        layers: 'regionale_keringen_rws',
+        transparent: true,
+        opacity: 0.7,
+        format: 'image/png',
+        service: 'WMS',
+        version: '1.3.0'
+    }),
+    
+    'Waterbergingsgebieden': L.tileLayer.wms('https://service.pdok.nl/hwh/zoneringenimwa/wms/v1_0', {
+        layers: 'Waterbergingsgebied',
+        transparent: true,
+        format: 'image/png'
+    }),
+    
+    'RWS Kwantiteit': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/omgevingswet/ows', {
+        layers: 'waterkwantiteitsbeheer_rijk',
+        transparent: true,
+        opacity: 0.75,
+        tileSize: 2048,
+        format: 'image/png'
+    }),
+    
+    'RWS Districten': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/regiogebieden_rijkswaterstaat/ows', {
+        layers: 'rijkswaterstaat_districten_nat',
+        transparent: true,
+        opacity: 0.6,
+        format: 'image/png',
+        service: 'WMS',
+        version: '1.3.0'
+    }),
+    
+    // Water quality and management
+    'Drinkwaterbedrijven': L.tileLayer.wms('https://data.rivm.nl/geo/ank/wms', {
+        layers: 'rivm_r81_rg_voorzieningsgebiedendrinkwaterbedrijven',
+        transparent: true,
+        opacity: 0.4,
+        format: 'image/png'
+    }),
+    
+    'RWZI (waterzuiveringsinrichtingen)': L.tileLayer.wms('https://service.pdok.nl/rioned/wswaterketen/wms/v1_0', {
+        layers: 'waterschap_rwzi',
+        transparent: true,
+        format: 'image/png'
+    }),
+    
+    // Navigation
+    'Bevaarbaarheid': L.tileLayer.wms('https://service.pdok.nl/rws/vnds/wms/v2_0', {
+        layers: 'l_navigability',
+        transparent: true,
+        format: 'image/png'
+    }),
+    
+    'Vaarwegenkaart 2013': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/vaarwegenkaart/ows?SERVICE=WMS', {
+        layers: 'vaarwegenkaart',
+        transparent: true,
+        format: 'image/png',
+        version: '1.3.0'
+    })
 };
 
 // Add default base layer
-baseLayers['OpenStreetMap'].addTo(map);
+baseLayers['BRT Water'].addTo(map);
 
 // Create layer control
 const layerControl = L.control.layers(baseLayers, overlayLayers, {
@@ -36,14 +170,14 @@ const layerControl = L.control.layers(baseLayers, overlayLayers, {
     collapsed: true
 }).addTo(map);
 
-// Render layer controls in custom panel
+// Render custom layer controls panel
 function renderLayerControls() {
     const controlPanel = document.getElementById('layer-controls');
-    controlPanel.innerHTML = '<h3>Map Layers</h3>';
+    controlPanel.innerHTML = '<h3>Kaartlagen</h3>';
 
     // Base layers
     const baseLayersDiv = document.createElement('div');
-    baseLayersDiv.innerHTML = '<h4 style="margin-top: 10px; margin-bottom: 8px; font-size: 0.85em; color: #666; font-weight: 500;">Base Maps</h4>';
+    baseLayersDiv.innerHTML = '<h4 style="margin-top: 10px; margin-bottom: 8px; font-size: 0.85em; color: #666; font-weight: 500;">Achtergrondkaarten</h4>';
     
     Object.keys(baseLayers).forEach((name, index) => {
         const label = document.createElement('label');
@@ -71,7 +205,7 @@ function renderLayerControls() {
     // Overlay layers
     if (Object.keys(overlayLayers).length > 0) {
         const overlayDiv = document.createElement('div');
-        overlayDiv.innerHTML = '<h4 style="margin-top: 15px; margin-bottom: 8px; font-size: 0.85em; color: #666; font-weight: 500;">Overlays</h4>';
+        overlayDiv.innerHTML = '<h4 style="margin-top: 15px; margin-bottom: 8px; font-size: 0.85em; color: #666; font-weight: 500;">Themalagen</h4>';
         
         Object.keys(overlayLayers).forEach(name => {
             const label = document.createElement('label');
@@ -93,29 +227,14 @@ function renderLayerControls() {
         });
         controlPanel.appendChild(overlayDiv);
     }
-
-    // Info text if no overlays
-    if (Object.keys(overlayLayers).length === 0) {
-        const infoDiv = document.createElement('div');
-        infoDiv.style.cssText = 'margin-top: 15px; font-size: 0.85em; color: #999; line-height: 1.4;';
-        infoDiv.innerHTML = '<em>No overlay layers configured yet. Add OGC WMS services in js/map.js</em>';
-        controlPanel.appendChild(infoDiv);
-    }
 }
 
 // Initial render
 renderLayerControls();
 
-// Add some example markers
-const exampleMarker = L.marker([52.3676, 4.9041]).addTo(map)
-    .bindPopup('<strong>Amsterdam</strong><br>Example location');
-
-const exampleMarker2 = L.marker([51.9225, 4.4792]).addTo(map)
-    .bindPopup('<strong>Rotterdam</strong><br>Example location');
-
 // Add scale control
-L.control.scale().addTo(map);
+L.control.scale({ imperial: false }).addTo(map);
 
-// Optional: Add fullscreen button (requires fullscreen library if desired)
+// Console messages for debugging
 console.log('Map initialized successfully!');
-console.log('To add OGC WMS services, modify the overlayLayers object in js/map.js');
+console.log('Loaded ' + Object.keys(overlayLayers).length + ' water management layers from PDOK and RWS');
