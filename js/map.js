@@ -208,6 +208,36 @@ const overlayLayers = {
         format: 'image/png',
         version: '1.3.0',
         crs: rdCRS
+    }),
+
+    // Labels and reference layers (from wkaart)
+    'Labels - Polders': L.tileLayer.wms('https://service.pdok.nl/brt/top10nl/wms/v1_0', {
+        layers: 'geografischgebiedlabelnl',
+        transparent: true,
+        opacity: 0.9,
+        format: 'image/png',
+        crs: rdCRS,
+        minZoom: 9,
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
+    }),
+
+    'Labels - Hoogtepunten': L.tileLayer.wms('https://service.pdok.nl/brt/top10nl/wms/v1_0', {
+        layers: 'hoogte',
+        transparent: true,
+        opacity: 0.8,
+        format: 'image/png',
+        crs: rdCRS,
+        minZoom: 9,
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
+    }),
+
+    'Gemalen (Waterschappen)': L.tileLayer.wms('https://service.pdok.nl/hwh/kunstwerkenimwa/wms/v1_0', {
+        layers: 'gemaal',
+        transparent: true,
+        format: 'image/png',
+        crs: rdCRS,
+        minZoom: 9,
+        attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
     })
 };
 
