@@ -1,17 +1,18 @@
-// Initialize map centered on Netherlands with RD (Rijksdriehoeks) coordinate system
+// Initialize map centered on Netherlands with Web Mercator (standard Leaflet projection)
 const map = L.map('map').setView([52.1326, 5.2913], 7);
 
 // Base layers using PDOK (Publieke Diensten Op de Kaart) - Dutch national map services
+// Using EPSG:3857 (Web Mercator) endpoints for compatibility with Leaflet
 const baseLayers = {
-    'BRT Water': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/water/EPSG:28992/{z}/{x}/{y}.png', {
+    'BRT Water': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/water/EPSG:3857/{z}/{x}/{y}.png', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
         maxZoom: 19
     }),
-    'BRT Grijs': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:28992/{z}/{x}/{y}.png', {
+    'BRT Grijs': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
         maxZoom: 19
     }),
-    'Luchtfoto': L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:28992/{z}/{x}/{y}.jpeg', {
+    'Luchtfoto': L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
         maxZoom: 19
     })
@@ -25,7 +26,7 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.5,
         format: 'image/png',
-        tileSize: 2048,
+        crs: L.CRS.EPSG3857,
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
     }),
     
@@ -33,7 +34,8 @@ const overlayLayers = {
         layers: 'waterschap',
         transparent: true,
         opacity: 0.65,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     // Water-related layers
@@ -42,6 +44,7 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.7,
         format: 'image/png',
+        crs: L.CRS.EPSG3857,
         attribution: 'RVO'
     }),
     
@@ -49,7 +52,8 @@ const overlayLayers = {
         layers: 'PS.ProtectedSite',
         transparent: true,
         opacity: 0.5,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'Wetlands': L.tileLayer.wms('https://service.pdok.nl/rvo/wetlands/wms/v1_0', {
@@ -57,6 +61,7 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.6,
         format: 'image/png',
+        crs: L.CRS.EPSG3857,
         attribution: 'RVO'
     }),
     
@@ -65,21 +70,24 @@ const overlayLayers = {
         layers: 'lgn-actueel',
         transparent: true,
         opacity: 0.5,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'Bodemkaart': L.tileLayer.wms('https://service.pdok.nl/bzk/bro-bodemkaart/wms/v1_0', {
         layers: 'soilarea',
         transparent: true,
         opacity: 0.5,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'Geomorfologie': L.tileLayer.wms('https://service.pdok.nl/bzk/bro-geomorfologischekaart/wms/v2_0', {
         layers: 'geomorphological_area',
         transparent: true,
         opacity: 0.6,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     // Elevation
@@ -88,6 +96,7 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.6,
         format: 'image/png',
+        crs: L.CRS.EPSG3857,
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
     }),
     
@@ -97,7 +106,8 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.7,
         format: 'image/png',
-        version: '1.3.0'
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857
     }),
     
     'Keringen regionaal': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/regionale_keringen/ows', {
@@ -106,21 +116,23 @@ const overlayLayers = {
         opacity: 0.7,
         format: 'image/png',
         service: 'WMS',
-        version: '1.3.0'
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857
     }),
     
     'Waterbergingsgebieden': L.tileLayer.wms('https://service.pdok.nl/hwh/zoneringenimwa/wms/v1_0', {
         layers: 'Waterbergingsgebied',
         transparent: true,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'RWS Kwantiteit': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/omgevingswet/ows', {
         layers: 'waterkwantiteitsbeheer_rijk',
         transparent: true,
         opacity: 0.75,
-        tileSize: 2048,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'RWS Districten': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/regiogebieden_rijkswaterstaat/ows', {
@@ -129,7 +141,8 @@ const overlayLayers = {
         opacity: 0.6,
         format: 'image/png',
         service: 'WMS',
-        version: '1.3.0'
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857
     }),
     
     // Water quality and management
@@ -137,27 +150,31 @@ const overlayLayers = {
         layers: 'rivm_r81_rg_voorzieningsgebiedendrinkwaterbedrijven',
         transparent: true,
         opacity: 0.4,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'RWZI (waterzuiveringsinrichtingen)': L.tileLayer.wms('https://service.pdok.nl/rioned/wswaterketen/wms/v1_0', {
         layers: 'waterschap_rwzi',
         transparent: true,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     // Navigation
     'Bevaarbaarheid': L.tileLayer.wms('https://service.pdok.nl/rws/vnds/wms/v2_0', {
         layers: 'l_navigability',
         transparent: true,
-        format: 'image/png'
+        format: 'image/png',
+        crs: L.CRS.EPSG3857
     }),
     
     'Vaarwegenkaart 2013': L.tileLayer.wms('https://geo.rijkswaterstaat.nl/services/ogc/gdr/vaarwegenkaart/ows?SERVICE=WMS', {
         layers: 'vaarwegenkaart',
         transparent: true,
         format: 'image/png',
-        version: '1.3.0'
+        version: '1.3.0',
+        crs: L.CRS.EPSG3857
     })
 };
 
