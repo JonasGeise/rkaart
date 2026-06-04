@@ -1,35 +1,49 @@
-// Initialize map with proper Dutch RD (Rijksdriehoeks) coordinate system EPSG:28992
-// Using Web Mercator as base since Leaflet works best with it, but displaying RD data
+// Define RD (EPSG:28992) and WGS84 projections using Proj4
+// RD New (EPSG:28992) - Rijksdriehoeks coordinate system for Netherlands
+proj4.defs('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs +towgs84=565.417,50.3319,465.552,-0.398957,0.343008,-1.8774,4.0725');
 
-// Initialize map with standard Web Mercator projection centered on Netherlands
+// Initialize map with RD projection using Proj4Leaflet
 const map = L.map('map', {
-    continuousWorld: true,
+    crs: L.CRS.proj4js('EPSG:28992', proj4.defs('EPSG:28992'), {
+        resolutions: [860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420, 0.210, 0.105, 0.0525],
+        bounds: L.bounds([-285401.92, 22598.08], [595401.92, 903401.92]),
+        origin: [-285401.92, 903401.92]
+    }),
+    continuousWorld: false,
     worldCopyJump: false
-}).setView([52.1326, 5.2913], 7);
+});
+
+// Set initial view - center on Netherlands in RD coordinates
+// Approximate center: (155000, 463000) in RD = Amsterdam area
+map.setView([52.1326, 5.2913], 8);
 
 // Base layers using PDOK (Publieke Diensten Op de Kaart) - Dutch national map services
+// Using EPSG:28992 (RD New) endpoints for proper projection
 const baseLayers = {
-    'BRT Water': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/water/EPSG:3857/{z}/{x}/{y}.png', {
+    'BRT Water': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/water/EPSG:28992/{z}/{x}/{y}.png', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
-        maxZoom: 19,
+        maxZoom: 14,
         minZoom: 0,
-        tms: false
+        tms: false,
+        bounds: L.bounds([-285401.92, 22598.08], [595401.92, 903401.92])
     }),
-    'BRT Grijs': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:3857/{z}/{x}/{y}.png', {
+    'BRT Grijs': L.tileLayer('https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/grijs/EPSG:28992/{z}/{x}/{y}.png', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
-        maxZoom: 19,
+        maxZoom: 14,
         minZoom: 0,
-        tms: false
+        tms: false,
+        bounds: L.bounds([-285401.92, 22598.08], [595401.92, 903401.92])
     }),
-    'Luchtfoto': L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:3857/{z}/{x}/{y}.jpeg', {
+    'Luchtfoto': L.tileLayer('https://service.pdok.nl/hwh/luchtfotorgb/wmts/v1_0/Actueel_orthoHR/EPSG:28992/{z}/{x}/{y}.jpeg', {
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>',
-        maxZoom: 19,
+        maxZoom: 14,
         minZoom: 0,
-        tms: false
+        tms: false,
+        bounds: L.bounds([-285401.92, 22598.08], [595401.92, 903401.92])
     })
 };
 
-// Overlay layers - Water Management Maps
+// Overlay layers - Water Management Maps using WMS
 const overlayLayers = {
     // Administrative boundaries
     'Provincies': L.tileLayer.wms('https://service.pdok.nl/cbs/gebiedsindelingen/2023/wms/v1_0', {
@@ -38,7 +52,6 @@ const overlayLayers = {
         opacity: 0.5,
         format: 'image/png',
         version: '1.1.1',
-        tileSize: 512,
         attribution: 'Kaartgegevens © <a href="https://www.kadaster.nl">Kadaster</a>'
     }),
     
@@ -47,8 +60,7 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.65,
         format: 'image/png',
-        version: '1.1.1',
-        tileSize: 512
+        version: '1.1.1'
     }),
     
     // Water-related layers
@@ -127,7 +139,6 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.7,
         format: 'image/png',
-        service: 'WMS',
         version: '1.1.1'
     }),
     
@@ -151,7 +162,6 @@ const overlayLayers = {
         transparent: true,
         opacity: 0.6,
         format: 'image/png',
-        service: 'WMS',
         version: '1.1.1'
     }),
     
@@ -262,5 +272,5 @@ renderLayerControls();
 L.control.scale({ imperial: false }).addTo(map);
 
 // Console messages for debugging
-console.log('Map initialized successfully!');
+console.log('Map initialized successfully with RD New (EPSG:28992) projection!');
 console.log('Loaded ' + Object.keys(overlayLayers).length + ' Dutch water management layers from PDOK and RWS');
